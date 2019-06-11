@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+        <title>Validar CURP</title>
+    </head>
+    <body>
+        <div class="flex justify-center pt-6">
+            <form class="w-full max-w-md pt-6" onsubmit="fetchCURP()">
+                <div class="md:flex md:items-center pt-6 mb-2">
+                    <div class="md:w-1/2">
+                        <label class="block text-gray-500 font-bold md:text-right ml-4 mb-1 md:mb-0 pr-4">CURP</label>
+                    </div>
+                    <div class="md:w-1/2">
+                        <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 mr-4 ml-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="curp" type="text" minlength="18" maxlength="18" pattern="[A-Za-z0-9]{18}" autofocus>
+                    </div>
+                </div>
+                <div class="md:flex md:items-center mb-2">
+                    <div class="md:w-1/2">
+                        <label class="block text-gray-500 font-bold md:text-right ml-4 mb-1 md:mb-0 pr-4">Nombre(s)</label>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="block ml-4" id="nombres"></div>
+                    </div>
+                </div>
+                <div class="md:flex md:items-center mb-2">
+                    <div class="md:w-1/2">
+                        <label class="block text-gray-500 font-bold md:text-right ml-4 mb-1 md:mb-0 pr-4">Primer apellido</label>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="block ml-4" id="primerApellido"></div>
+                    </div>
+                </div>
+                <div class="md:flex md:items-center mb-2">
+                    <div class="md:w-1/2">
+                        <label class="block text-gray-500 font-bold md:text-right ml-4 mb-1 md:mb-0 pr-4">Segundo apellido</label>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="block ml-4" id="segundoApellido"></div>
+                    </div>
+                </div>
+                <div class="md:flex md:items-center mb-2">
+                    <div class="md:w-1/2">
+                        <label class="block text-gray-500 font-bold md:text-right ml-4 mb-1 md:mb-0 pr-4">Sexo</label>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="block ml-4" id="sexo"></div>
+                    </div>
+                </div>
+                <div class="md:flex md:items-center mb-2">
+                    <div class="md:w-1/2">
+                        <label class="block text-gray-500 font-bold md:text-right ml-4 mb-1 md:mb-0 pr-4">Fecha de nacimiento</label>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="block ml-4" id="fechaNacimiento"></div>
+                    </div>
+                </div>
+                <div class="md:flex md:items-center mb-2">
+                    <div class="md:w-1/2">
+                        <label class="block text-gray-500 font-bold md:text-right ml-4 mb-1 md:mb-0 pr-4">Entidad de nacimiento</label>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="block ml-4" id="entidadNacimiento"></div>
+                    </div>
+                </div>
+                <div class="md:flex md:items-center mb-2"></div>
+                    <div class="bg-red-100 border border-red-400 text-red-700 ml-4 px-4 py-3 rounded relative" id="alerta" role="alert" style="display: none;">
+                        <strong class="font-bold">Algo esta pasando!</strong>
+                        <span class="block sm:inline" id="mensaje"></span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </body>
+</html>
+
+<script>
+const states = [
+    {name: 'AGUASCALIENTES'      , code: 'AS'},
+    {name: 'BAJA CALIFORNIA'     , code: 'BC'},
+    {name: 'BAJA CALIFORNIA SUR' , code: 'BS'},
+    {name: 'CAMPECHE'            , code: 'CC'},
+    {name: 'COAHUILA'            , code: 'CL'},
+    {name: 'COLIMA'              , code: 'CM'},
+    {name: 'CHIAPAS'             , code: 'CS'},
+    {name: 'CHIHUAHUA'           , code: 'CH'},
+    {name: 'DISTRITO FEDERAL'    , code: 'DF'},
+    {name: 'DURANGO'             , code: 'DG'},
+    {name: 'GUANAJUATO'          , code: 'GT'},
+    {name: 'GUERRERO'            , code: 'GR'},
+    {name: 'HIDALGO'             , code: 'HG'},
+    {name: 'JALISCO'             , code: 'JC'},
+    {name: 'MÉXICO'              , code: 'MC'},
+    {name: 'MICHOACÁN'           , code: 'MN'},
+    {name: 'MORELOS'             , code: 'MS'},
+    {name: 'NAYARIT'             , code: 'NT'},
+    {name: 'NUEVO LEÓN'          , code: 'NL'},
+    {name: 'OAXACA'              , code: 'OC'},
+    {name: 'PUEBLA'              , code: 'PL'},
+    {name: 'QUERÉTARO'           , code: 'QT'},
+    {name: 'QUINTANA ROO'        , code: 'QR'},
+    {name: 'SAN LUIS POTOSÍ'     , code: 'SP'},
+    {name: 'SINALOA'             , code: 'SL'},
+    {name: 'SONORA'              , code: 'SR'},
+    {name: 'TABASCO'             , code: 'TC'},
+    {name: 'TAMAULIPAS'          , code: 'TS'},
+    {name: 'TLAXCALA'            , code: 'TL'},
+    {name: 'VERACRUZ'            , code: 'VZ'},
+    {name: 'YUCATÁN'             , code: 'YN'},
+    {name: 'ZACATECAS'           , code: 'ZS'}
+];
+
+const sex = [
+    {name: 'HOMBRE', code: 'H'},
+    {name: 'MUJER' , code: 'M'}
+];
+
+const curp = document.querySelector('#curp');
+const nombres = document.querySelector('#nombres');
+const primerApellido = document.querySelector('#primerApellido');
+const segundoApellido = document.querySelector('#segundoApellido');
+const sexo = document.querySelector('#sexo');
+const fechaNacimiento = document.querySelector('#fechaNacimiento');
+const entidadNacimiento = document.querySelector('#entidadNacimiento');
+const mensaje = document.querySelector('#mensaje');
+const alerta = document.querySelector('#alerta');
+
+async function fetchCURP() {
+    event.preventDefault();
+
+    nombres.innerHTML = '';
+    primerApellido.innerHTML = '';
+    segundoApellido.innerHTML = '';
+    sexo.innerHTML = '';
+    fechaNacimiento.innerHTML = '';
+    entidadNacimiento.innerHTML = '';
+    alerta.style.display = 'none';
+
+    const URL = 'https://cors-anywhere.herokuapp.com/https://mecqa.siged.sep.gob.mx/mec/mvc/registroIpes/validaCurp';
+
+    try {
+        const fetchResult = fetch(new Request(URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({curp: curp.value})
+         }));
+
+        const response = await fetchResult;
+
+        if (response.ok) {
+          const contentType = response.headers.get('content-type');
+
+          if (contentType && contentType.indexOf('application/json') !== -1) {
+            const jsonData = await response.json();
+
+            var fecha = new Date(jsonData.fechaNacimiento);
+            var entidad = curp.value.substring(11,13);
+
+            nombres.innerHTML = jsonData.nombres;
+            primerApellido.innerHTML = jsonData.primerApellido;
+            segundoApellido.innerHTML = jsonData.segundoApellido;
+            fechaNacimiento.innerHTML = fecha.toLocaleDateString();
+
+            sex.forEach(function(element) {
+                if(element.code === jsonData.sexo) {
+                    sexo.innerHTML = element.name
+                }
+            });
+
+            states.forEach(function(element) {
+                if(element.code === entidad) {
+                    entidadNacimiento.innerHTML = element.name
+                }
+            });
+          } else {
+            mensaje.innerHTML = 'No hay registros de ésta CURP.';
+            alerta.style.display = 'block';
+          }
+        } else {
+            mensaje.innerHTML = 'No hay conexión con RENAPO.';
+            alerta.style.display = 'block';
+        }
+    } catch (e) {
+        mensaje.innerHTML = 'Conéctate a una red.';
+        alerta.style.display = 'block';
+    }
+}
+</script>
